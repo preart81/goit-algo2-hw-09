@@ -88,7 +88,41 @@ def random_local_search(func, bounds, iterations=1000, epsilon=1e-6):
         tuple: Розв'язок та його значення.
     """
 
-    pass
+    def get_random_neighbor(current, step=0.5):
+        """Функція для визначення випадкового сусіда"""
+        x, y = current
+        new_x = x + random.uniform(-step, step)
+        new_y = y + random.uniform(-step, step)
+        return (new_x, new_y)
+
+    # Визначаємо крок пошуку
+    dx = abs(bounds[0][1] - bounds[0][0])
+    dy = abs(bounds[1][1] - bounds[1][0])
+    step = max(dx, dy) / iterations
+
+    # Визначаємо розмірність простору пошуку
+    dimension = len(bounds)
+    # Ініціалізуємо першу точку випадково в межах bounds
+    current_point = [random.uniform(*bounds[i]) for i in range(dimension)]
+    current_value = func(current_point)
+
+    for _ in range(iterations):
+        # Генеруємо випадкового кандидата в межах bounds
+        new_point = get_random_neighbor(current_point, step)
+        new_value = func(new_point)
+        deviation = new_value - current_value
+
+        # Перевірка умови переходу до нової точки
+        if new_value < current_value:
+            current_point, current_value = new_point, new_value
+
+        # Перевірка умови зупинки: зміна значення менша за epsilon
+        if abs(deviation) < epsilon:
+            # print("abs(deviation) < epsilon")
+            break
+
+    # Повертаємо розв'язок та його значення
+    return current_point, current_value
 
 
 # Simulated Annealing
@@ -120,8 +154,8 @@ if __name__ == "__main__":
     print("Розв'язок:", hc_solution, "Значення:", hc_value)
 
     print("\nRandom Local Search:")
-    # rls_solution, rls_value = random_local_search(sphere_function, bounds)
-    # print("Розв'язок:", rls_solution, "Значення:", rls_value)
+    rls_solution, rls_value = random_local_search(sphere_function, bounds)
+    print("Розв'язок:", rls_solution, "Значення:", rls_value)
 
     print("\nSimulated Annealing:")
     # sa_solution, sa_value = simulated_annealing(sphere_function, bounds)
